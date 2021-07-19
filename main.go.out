@@ -9,12 +9,13 @@ str = readFile("./README.md")
 write("/*\n")
 write(str)
 write("*\/")
-include("./meta_datas/split.js")
+run("./meta_datas/split.js")
 split("hello")
 */
-
-// aaaaaaaaaaaaaaaaaaaa.
-
+/*
+# smist
+Through formatted comments, use tools to automatically parse and generate code
+*/
 /*@SMIST
 setIgnoreInput(false)
 */

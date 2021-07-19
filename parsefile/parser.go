@@ -15,7 +15,6 @@ import (
 type Parser interface {
 	OpenFile(filePath string) error
 	OnRead(*lex_pgl.LexProduct) error
-	SetIgnoreInput(ignoreIntput bool)
 	Close()
 }
 
@@ -25,14 +24,14 @@ func check(err error) {
 	}
 }
 
-// ClikePrase parse C like file.
-type ClikePrase struct {
+// ClikePraser parse C like file.
+type ClikePraser struct {
 	file        *os.File
 	vm          *otto.Otto
 	ignoreInput bool
 }
 
-func (c *ClikePrase) SetIgnoreInput(ignoreIntput bool) {
+func (c *ClikePraser) setIgnoreInput(ignoreIntput bool) {
 	if c.ignoreInput != ignoreIntput {
 		_, err := c.file.WriteString("\n")
 		check(err)
@@ -40,11 +39,12 @@ func (c *ClikePrase) SetIgnoreInput(ignoreIntput bool) {
 
 	c.ignoreInput = ignoreIntput
 }
-func (c *ClikePrase) set(name string, val interface{}) {
+
+func (c *ClikePraser) set(name string, val interface{}) {
 	check(c.vm.Set(name, val))
 }
 
-func (c *ClikePrase) OpenFile(filePath string) (err error) {
+func (c *ClikePraser) OpenFile(filePath string, vmIniter func(vm *otto.Otto) error) (err error) {
 	if c.file, err = smn_file.CreateNewFile(filePath + ".out"); err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (c *ClikePrase) OpenFile(filePath string) (err error) {
 		check(c.vm.Set(name, value))
 	})
 	c.set("setIgnoreInput", func(ignoreInput bool) {
-		c.SetIgnoreInput(ignoreInput)
+		c.setIgnoreInput(ignoreInput)
 	})
 	c.set("write", func(str string) {
 		_, err := c.file.WriteString(str)
@@ -73,11 +73,18 @@ func (c *ClikePrase) OpenFile(filePath string) (err error) {
 
 		return oInfo
 	})
-	c.set("panic", func(reason ...interface{}) {
+	c.set("include", func(jsPath string) {
+		data, err := smn_file.FileReadAll(jsPath)
+		check(err)
+		log.Print(string(data))
+		_, err = c.vm.Run(string(data))
+		check(err)
+	})
+	c.set("panic", func(reason interface{}) {
 		panic(reason)
 	})
 
-	return nil
+	return vmIniter(c.vm)
 }
 
 // getCommentBody get comment body.
@@ -89,7 +96,7 @@ func getCommentBody(str string) string {
 	return str[2 : len(str)-2]
 }
 
-func (c *ClikePrase) OnRead(lex *lex_pgl.LexProduct) error {
+func (c *ClikePraser) OnRead(lex *lex_pgl.LexProduct) error {
 	if !c.ignoreInput {
 		if _, err := c.file.Write([]byte(lex.Value)); err != nil {
 			return err
@@ -116,6 +123,6 @@ func (c *ClikePrase) OnRead(lex *lex_pgl.LexProduct) error {
 	return nil
 }
 
-func (c *ClikePrase) Close() {
+func (c *ClikePraser) Close() {
 	c.file.Close()
 }

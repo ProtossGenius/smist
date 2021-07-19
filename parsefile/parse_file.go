@@ -7,6 +7,7 @@ import (
 	"github.com/ProtossGenius/SureMoonNet/basis/smn_file"
 	"github.com/ProtossGenius/pglang/analysis/lex_pgl"
 	"github.com/ProtossGenius/pglang/snreader"
+	"github.com/robertkrimen/otto"
 )
 
 const (
@@ -14,7 +15,7 @@ const (
 )
 
 // Parse parse a file.
-func Parse(filePath string) error {
+func Parse(filePath string, vmIniter func(vm *otto.Otto) error) error {
 	sm := lex_pgl.NewLexAnalysiser()
 	str, err := smn_file.FileReadAll(filePath)
 
@@ -35,15 +36,22 @@ func Parse(filePath string) error {
 		sm.End()
 	}()
 
-	parseFile(filePath, sm.GetResultChan())
+	parseFile(filePath, sm.GetResultChan(), vmIniter)
 
 	return nil
 }
 
+func initNothing(vm *otto.Otto) error {
+	return nil
+}
+
 // parseFile do parse an rewrite to file.
-func parseFile(filePath string, ch <-chan snreader.ProductItf) {
-	parser := new(ClikePrase)
-	parser.OpenFile(filePath)
+func parseFile(filePath string, ch <-chan snreader.ProductItf, vmIniter func(vm *otto.Otto) error) {
+	parser := new(ClikePraser)
+	if vmIniter == nil {
+		vmIniter = initNothing
+	}
+	parser.OpenFile(filePath, vmIniter)
 	defer parser.Close()
 
 	for {

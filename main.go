@@ -13,17 +13,10 @@ import (
 /*@SMIST
 setIgnoreInput(true)
 console.log("here ???")
-str = readFile("./README.md")
-write("/*\n")
-write(str)
-write("*\/")
 include("./meta_datas/split.js")
 split("hello")
 */
-/*
-# smist
-Through formatted comments, use tools to automatically parse and generate code
-*/
+
 /*@SMIST setIgnoreInput(false)//.*/
 func check(err error) {
 	if err != nil {

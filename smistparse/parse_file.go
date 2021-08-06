@@ -36,7 +36,6 @@ func logErr(objs ...interface{}) {
 // Parse parse a file.
 func Parse(filePath string, vmIniter func(vm *otto.Otto) error, workGroup *sync.WaitGroup) {
 	workGroup.Add(1)
-	defer workGroup.Done()
 
 	sm := lex_pgl.NewLexAnalysiser()
 
@@ -63,7 +62,7 @@ func Parse(filePath string, vmIniter func(vm *otto.Otto) error, workGroup *sync.
 		sm.End()
 	}()
 
-	parseFile(filePath, sm.GetResultChan(), vmIniter)
+	go parseFile(filePath, sm.GetResultChan(), vmIniter, workGroup)
 }
 
 func initNothing(vm *otto.Otto) error {
@@ -80,7 +79,10 @@ func codeAddLine(code string) string {
 }
 
 // parseFile do parse an rewrite to file.
-func parseFile(filePath string, ch <-chan snreader.ProductItf, vmIniter func(vm *otto.Otto) error) {
+func parseFile(filePath string, ch <-chan snreader.ProductItf, vmIniter func(vm *otto.Otto) error,
+	workGroup *sync.WaitGroup) {
+	defer workGroup.Done()
+
 	parser := new(ClikePraser)
 	newPath := filePath + ".smist_temp"
 

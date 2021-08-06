@@ -16,15 +16,33 @@ const (
 	ErrCantReadFileBeforeParse = "ErrCantReadFileBeforeParse: %v"
 )
 
+// logInfo print logInfo message.
+func logInfo(objs ...interface{}) {
+	log.Println(objs...)
+}
+
+// logWarn print info message.
+func logWarn(objs ...interface{}) {
+	log.Println(objs...)
+}
+
+// err print info message.
+func logErr(objs ...interface{}) {
+	log.Println(objs...)
+}
+
 // Parse parse a file.
 func Parse(filePath string, vmIniter func(vm *otto.Otto) error, workGroup *sync.WaitGroup) {
 	workGroup.Add(1)
 	defer workGroup.Done()
 
 	sm := lex_pgl.NewLexAnalysiser()
-	str, err := smn_file.FileReadAll(filePath)
 
-	if err != nil {
+	var str []byte
+
+	var err error
+
+	if str, err = smn_file.FileReadAll(filePath); err != nil {
 		log.Printf("error happened %v\n", fmt.Sprintf(ErrCantReadFileBeforeParse, err))
 
 		return
@@ -43,10 +61,7 @@ func Parse(filePath string, vmIniter func(vm *otto.Otto) error, workGroup *sync.
 		sm.End()
 	}()
 
-	err = parseFile(filePath+".smist_temp", sm.GetResultChan(), vmIniter)
-	if err != nil {
-		log.Printf("error happened %v", err)
-	}
+	parseFile(filePath, sm.GetResultChan(), vmIniter)
 }
 
 func initNothing(vm *otto.Otto) error {
@@ -54,7 +69,7 @@ func initNothing(vm *otto.Otto) error {
 }
 
 // parseFile do parse an rewrite to file.
-func parseFile(filePath string, ch <-chan snreader.ProductItf, vmIniter func(vm *otto.Otto) error) (err error) {
+func parseFile(filePath string, ch <-chan snreader.ProductItf, vmIniter func(vm *otto.Otto) error) {
 	parser := new(ClikePraser)
 	newPath := filePath + ".smist_temp"
 
@@ -62,9 +77,11 @@ func parseFile(filePath string, ch <-chan snreader.ProductItf, vmIniter func(vm 
 		vmIniter = initNothing
 	}
 
-	err = parser.OpenFile(newPath, vmIniter)
+	err := parser.OpenFile(newPath, vmIniter)
 	if err != nil {
-		return err
+		logErr("open file error", err)
+
+		return
 	}
 
 	defer parser.DeferClose()
@@ -84,10 +101,13 @@ func parseFile(filePath string, ch <-chan snreader.ProductItf, vmIniter func(vm 
 		err = parser.OnRead(lex)
 
 		if err != nil {
-			return err
+			logErr("when parsing error happened, code = ", lex, "error is ", err)
 		}
 	}
 	parser.Close()
 
-	return os.Rename(newPath, filePath)
+	err = os.Rename(newPath, filePath)
+	if err != nil {
+		logErr("when rename temp file, error happened, error is : ", err)
+	}
 }

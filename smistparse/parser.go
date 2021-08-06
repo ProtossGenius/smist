@@ -29,6 +29,7 @@ type ClikePraser struct {
 	file        *os.File
 	vm          *otto.Otto
 	ignoreInput bool
+	filePath    string
 }
 
 func (c *ClikePraser) setIgnoreInput(ignoreIntput bool) {
@@ -48,6 +49,8 @@ func (c *ClikePraser) OpenFile(filePath string, vmIniter func(vm *otto.Otto) err
 	if c.file, err = smn_file.CreateNewFile(filePath); err != nil {
 		return err
 	}
+
+	c.filePath = filePath
 
 	c.vm = otto.New()
 	c.set("set", func(name string, value interface{}) {
@@ -130,5 +133,7 @@ func (c *ClikePraser) Close() {
 func (c *ClikePraser) DeferClose() {
 	if c.file != nil {
 		c.file.Close()
+		os.Remove(c.filePath)
 	}
+
 }

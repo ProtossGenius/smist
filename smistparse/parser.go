@@ -1,4 +1,4 @@
-package parsefile
+package smistparse
 
 import (
 	"log"
@@ -45,7 +45,7 @@ func (c *ClikePraser) set(name string, val interface{}) {
 }
 
 func (c *ClikePraser) OpenFile(filePath string, vmIniter func(vm *otto.Otto) error) (err error) {
-	if c.file, err = smn_file.CreateNewFile(filePath + ".out"); err != nil {
+	if c.file, err = smn_file.CreateNewFile(filePath); err != nil {
 		return err
 	}
 
@@ -76,7 +76,6 @@ func (c *ClikePraser) OpenFile(filePath string, vmIniter func(vm *otto.Otto) err
 	c.set("include", func(jsPath string) {
 		data, err := smn_file.FileReadAll(jsPath)
 		check(err)
-		log.Print(string(data))
 		_, err = c.vm.Run(string(data))
 		check(err)
 	})
@@ -125,4 +124,11 @@ func (c *ClikePraser) OnRead(lex *lex_pgl.LexProduct) error {
 
 func (c *ClikePraser) Close() {
 	c.file.Close()
+	c.file = nil
+}
+
+func (c *ClikePraser) DeferClose() {
+	if c.file != nil {
+		c.file.Close()
+	}
 }

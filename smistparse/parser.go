@@ -79,8 +79,11 @@ func (c *ClikePraser) OpenFile(filePath string, vmIniter func(vm *otto.Otto) err
 	c.set("include", func(jsPath string) {
 		data, err := smn_file.FileReadAll(jsPath)
 		check(err)
-		_, err = c.vm.Run(string(data))
-		check(err)
+		code := string(data)
+		_, err = c.vm.Run(code)
+		if err != nil {
+			panic("include code fail, code is \n" + codeAddLine(code) + "\n error is \n" + err.Error())
+		}
 	})
 	c.set("panic", func(reason interface{}) {
 		panic(reason)

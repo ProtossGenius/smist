@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/ProtossGenius/SureMoonNet/basis/smn_file"
@@ -68,6 +70,15 @@ func initNothing(vm *otto.Otto) error {
 	return nil
 }
 
+func codeAddLine(code string) string {
+	lines := strings.Split(code, "\n")
+	for i := range lines {
+		lines[i] = strconv.Itoa(i+1) + "|" + lines[i]
+	}
+
+	return strings.Join(lines, "\n")
+}
+
 // parseFile do parse an rewrite to file.
 func parseFile(filePath string, ch <-chan snreader.ProductItf, vmIniter func(vm *otto.Otto) error) {
 	parser := new(ClikePraser)
@@ -92,7 +103,7 @@ func parseFile(filePath string, ch <-chan snreader.ProductItf, vmIniter func(vm 
 
 		if lex.ProductType() < 0 {
 			if lex.ProductType() != snreader.ResultEnd {
-				log.Printf("parse file error, ProductType is %v ,reason is %v\n", lex.ProductType(), lex.Value)
+				log.Printf("parse file error, ProductType is %v ,reason is %v\n", lex.ProductType(), codeAddLine(lex.Value))
 			}
 
 			break

@@ -15,6 +15,9 @@ setIgnoreInput(true)
 console.log("here ???")
 include("./meta_datas/split.js")
 split("hello")
+function a(){}
+function a(){console.log("yes")}
+a()
 */
 
 /*@SMIST setIgnoreInput(false)//.*/
@@ -62,4 +65,5 @@ func main() {
 	})
 
 	check(err)
+	workGroup.Wait()
 }

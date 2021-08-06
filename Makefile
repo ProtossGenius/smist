@@ -11,6 +11,6 @@ qrun:
 test:
 
 install:
-
+	go install
 clean:
 

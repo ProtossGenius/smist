@@ -34,13 +34,13 @@ type ClikePraser struct {
 	jsPath      string
 }
 
-func (c *ClikePraser) setIgnoreInput(ignoreIntput bool) {
-	if c.ignoreInput != ignoreIntput {
+func (c *ClikePraser) setIgnoreInput(ignoreInput bool) {
+	if c.ignoreInput != ignoreInput && ignoreInput {
 		_, err := c.file.WriteString("\n")
 		check(err)
 	}
 
-	c.ignoreInput = ignoreIntput
+	c.ignoreInput = ignoreInput
 }
 
 func (c *ClikePraser) set(name string, val interface{}) {

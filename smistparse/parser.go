@@ -1,6 +1,7 @@
 package smistparse
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -30,6 +31,7 @@ type ClikePraser struct {
 	vm          *otto.Otto
 	ignoreInput bool
 	filePath    string
+	jsPath      string
 }
 
 func (c *ClikePraser) setIgnoreInput(ignoreIntput bool) {
@@ -45,11 +47,15 @@ func (c *ClikePraser) set(name string, val interface{}) {
 	check(c.vm.Set(name, val))
 }
 
-func (c *ClikePraser) OpenFile(filePath string, vmIniter func(vm *otto.Otto) error) (err error) {
+func (c *ClikePraser) OpenFile(filePath, jsPath string, vmIniter func(vm *otto.Otto) error) (err error) {
+	wrap := func(err error) error {
+		return fmt.Errorf("ClinkeParser::OpenFile Err : %w", err)
+	}
 	if c.file, err = smn_file.CreateNewFile(filePath); err != nil {
-		return err
+		return wrap(err)
 	}
 
+	c.jsPath = jsPath
 	c.filePath = filePath
 
 	c.vm = otto.New()
@@ -77,7 +83,7 @@ func (c *ClikePraser) OpenFile(filePath string, vmIniter func(vm *otto.Otto) err
 		return oInfo
 	})
 	c.set("include", func(jsPath string) {
-		data, err := smn_file.FileReadAll(jsPath)
+		data, err := smn_file.FileReadAll(c.jsPath + "/" + jsPath)
 		check(err)
 		code := string(data)
 		_, err = c.vm.Run(code)

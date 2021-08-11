@@ -1,0 +1,22 @@
+package smistparse
+
+import (
+	"fmt"
+	"log"
+	"os"
+	"strconv"
+	"strings"
+	"sync"
+
+	"github.com/ProtossGenius/SureMoonNet/basis/smn_file"
+	"github.com/ProtossGenius/pglang/analysis/lex_pgl"
+	"github.com/ProtossGenius/pglang/snreader"
+	"github.com/robertkrimen/otto"
+)
+
+const (
+	ErrCantReadFileBeforeParse = "ErrCantReadFileBeforeParse: %v"
+)
+
+// logInfo print logInfo message.
+func 

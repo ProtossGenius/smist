@@ -34,7 +34,7 @@ func logErr(objs ...interface{}) {
 }
 
 // Parse parse a file.
-func Parse(filePath string, vmIniter func(vm *otto.Otto) error, workGroup *sync.WaitGroup) {
+func Parse(filePath, jsPath string, vmIniter func(vm *otto.Otto) error, workGroup *sync.WaitGroup) {
 	workGroup.Add(1)
 
 	sm := lex_pgl.NewLexAnalysiser()
@@ -62,7 +62,7 @@ func Parse(filePath string, vmIniter func(vm *otto.Otto) error, workGroup *sync.
 		sm.End()
 	}()
 
-	go parseFile(filePath, sm.GetResultChan(), vmIniter, workGroup)
+	go parseFile(filePath, jsPath, sm.GetResultChan(), vmIniter, workGroup)
 }
 
 func initNothing(vm *otto.Otto) error {
@@ -79,7 +79,7 @@ func codeAddLine(code string) string {
 }
 
 // parseFile do parse an rewrite to file.
-func parseFile(filePath string, ch <-chan snreader.ProductItf, vmIniter func(vm *otto.Otto) error,
+func parseFile(filePath, jsPath string, ch <-chan snreader.ProductItf, vmIniter func(vm *otto.Otto) error,
 	workGroup *sync.WaitGroup) {
 	defer workGroup.Done()
 
@@ -90,7 +90,7 @@ func parseFile(filePath string, ch <-chan snreader.ProductItf, vmIniter func(vm 
 		vmIniter = initNothing
 	}
 
-	err := parser.OpenFile(newPath, vmIniter)
+	err := parser.OpenFile(newPath, jsPath, vmIniter)
 	if err != nil {
 		logErr("open file error", err)
 

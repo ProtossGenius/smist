@@ -32,8 +32,11 @@ func main() {
 
 	var path string
 
+	var jsPath string
+
 	flag.StringVar(&path, "path", ".", "smist parse path")
 	flag.StringVar(&exts, "exts", ".go", "smist parse extra-name; multi split with ','")
+	flag.StringVar(&jsPath, "jsPath", ".", "js's include path")
 	flag.Parse()
 
 	extList := strings.Split(exts, ",")
@@ -59,7 +62,7 @@ func main() {
 			return smn_file.FILE_DO_FUNC_RESULT_DEFAULT
 		}
 
-		smistparse.Parse(p, nil, workGroup)
+		smistparse.Parse(p, jsPath, nil, workGroup)
 
 		return smn_file.FILE_DO_FUNC_RESULT_DEFAULT
 	})

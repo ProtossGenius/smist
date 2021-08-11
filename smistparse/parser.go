@@ -84,11 +84,13 @@ func (c *ClikePraser) OpenFile(filePath, jsPath string, vmIniter func(vm *otto.O
 	})
 	c.set("include", func(jsPath string) {
 		data, err := smn_file.FileReadAll(c.jsPath + "/" + jsPath)
-		check(err)
+		if err != nil {
+			panic("when parse file " + filePath + " include file: " + err.Error())
+		}
 		code := string(data)
 		_, err = c.vm.Run(code)
 		if err != nil {
-			panic("include code fail, code is \n" + codeAddLine(code) + "\n error is \n" + err.Error())
+			panic("include code fail file = " + c.filePath + ", code is \n" + codeAddLine(code) + "\n error is \n" + err.Error())
 		}
 	})
 	c.set("panic", func(reason interface{}) {
@@ -144,5 +146,4 @@ func (c *ClikePraser) DeferClose() {
 		c.file.Close()
 		os.Remove(c.filePath)
 	}
-
 }

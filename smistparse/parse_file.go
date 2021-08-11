@@ -105,7 +105,8 @@ func parseFile(filePath, jsPath string, ch <-chan snreader.ProductItf, vmIniter 
 
 		if lex.ProductType() < 0 {
 			if lex.ProductType() != snreader.ResultEnd {
-				log.Printf("parse file error, ProductType is %v ,reason is %v\n", lex.ProductType(), codeAddLine(lex.Value))
+				log.Printf("parse file %s error, ProductType is %v ,reason is %v\n", filePath,
+					lex.ProductType(), codeAddLine(lex.Value))
 			}
 
 			break
@@ -114,13 +115,13 @@ func parseFile(filePath, jsPath string, ch <-chan snreader.ProductItf, vmIniter 
 		err = parser.OnRead(lex)
 
 		if err != nil {
-			logErr("when parsing error happened, code = ", lex, "error is ", err)
+			logErr("when parsing file ", filePath, " error happened, code = ", lex, "error is ", err)
 		}
 	}
 	parser.Close()
 
 	err = os.Rename(newPath, filePath)
 	if err != nil {
-		logErr("when rename temp file, error happened, error is : ", err)
+		logErr("when rename temp file ", newPath, ", error happened, error is : ", err)
 	}
 }

@@ -69,6 +69,12 @@ func (c *ClikePraser) OpenFile(filePath, jsPath string, vmIniter func(vm *otto.O
 		_, err := c.file.WriteString(str)
 		check(err)
 	})
+	c.set("appendTo", func(fileName, str string) {
+		f, err := smn_file.SafeOpenFile(fileName)
+		check(err)
+		defer f.Close()
+		f.WriteString(str)
+	})
 	c.set("readFile", func(filePath string) string {
 		data, err := smn_file.FileReadAll(filePath)
 		check(err)

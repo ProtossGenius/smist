@@ -70,7 +70,6 @@ func (c *ClikePraser) OpenFile(filePath, jsPath string, vmIniter func(vm *otto.O
 		check(err)
 	})
 	c.set("appendTo", func(fileName, str string) {
-		println(fileName, str)
 		f, err := os.OpenFile(fileName, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 		check(err)
 		defer f.Close()
